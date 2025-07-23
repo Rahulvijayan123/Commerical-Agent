@@ -52,7 +52,7 @@ interface MoleculeData {
 }
 
 export default function MarketAnalysisAgent() {
-  const [currentStep, setCurrentStep] = useState<"metadata" | "loading" | "analysis">("metadata")
+  const [currentStep, setCurrentStep] = useState<"metadata" | "loading" | "analysis">("analysis")
   const [moleculeData, setMoleculeData] = useState<MoleculeData | null>(null)
   const [activeModule, setActiveModule] = useState("compound")
   const [collapsedModules, setCollapsedModules] = useState<Set<string>>(new Set())
@@ -104,19 +104,16 @@ export default function MarketAnalysisAgent() {
                   <h1 className="text-3xl font-bold text-slate-900">Market Analysis Agent</h1>
                   <p className="text-slate-600 mt-1">Simulating Commercial Viability for Drug Asset Evaluation</p>
                 </div>
-                {moleculeData && (
+                {true && (
                   <div className="text-sm text-slate-600 border-l pl-4">
-                    <p className="font-semibold">{moleculeData.moleculeName || "Unnamed Molecule"}</p>
-                    <p>{moleculeData.internalCode}</p>
-                    <p>Phase: {moleculeData.developmentPhase}</p>
+                    <p className="font-semibold">Example Molecule</p>
+                    <p>Internal Code 123</p>
+                    <p>Phase: Phase 2</p>
                   </div>
                 )}
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleBackToMetadata}>
-                Edit Molecule Info
-              </Button>
               <Button variant="outline" size="sm" onClick={() => exportData("csv")}>
                 <Download className="w-4 h-4 mr-2" />
                 CSV
