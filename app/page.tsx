@@ -104,8 +104,7 @@ export default function MarketAnalysisAgent() {
         try {
           setUserInputs(JSON.parse(storedInputs));
           console.log('[DEBUG] Parsed userInputs:', JSON.parse(storedInputs));
-          // Clear it after reading so only new submissions are shown
-          localStorage.removeItem('userInputs');
+          // Don't clear userInputs immediately - let them persist for display
         } catch (e) {
           console.error('[DEBUG] Failed to parse userInputs:', e);
         }
