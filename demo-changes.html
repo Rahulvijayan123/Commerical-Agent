@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Changes Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .demo-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .code-block { background: #f5f5f5; padding: 10px; border-radius: 4px; font-family: monospace; }
+        .success { color: green; font-weight: bold; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>UI/UX Changes Implementation Status</h1>
+    
+    <div class="demo-section">
+        <h2>✅ 1. User Input Display - IMPLEMENTED</h2>
+        <p class="success">Status: COMPLETE</p>
+        <p>Location: Under "Market Analysis Agent" title</p>
+        <div class="code-block">
+            {/* User Inputs Display */}
+            {Object.values(userInputs).some(value => value) && (
+              <div className="pt-1 pb-2">
+                <p className="text-sm text-muted-foreground">
+                  {userInputs.target && `• Target: ${userInputs.target}`}
+                  {userInputs.indication && ` • Indication: ${userInputs.indication}`}
+                  {userInputs.modality && ` • Modality: ${userInputs.modality}`}
+                  {userInputs.geography && ` • Geography: ${userInputs.geography}`}
+                  {userInputs.developmentPhase && ` • Development Stage: ${userInputs.developmentPhase}`}
+                </p>
+              </div>
+            )}
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>✅ 2. Deal Activity Improvements - IMPLEMENTED</h2>
+        <p class="success">Status: COMPLETE</p>
+        <p>Fixed N/A placeholders and enhanced field mapping</p>
+        <div class="code-block">
+            {deal.acquirer || deal.buyerAcquirer}
+            {deal.value ?? deal.price ?? deal.dealPrice}
+            {deal.date ?? deal.status ?? deal.dealDate}
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>✅ 3. Collapsible More Details - IMPLEMENTED</h2>
+        <p class="success">Status: COMPLETE</p>
+        <p>Inline collapsible sections with smooth animations</p>
+        <div class="code-block">
+            const [expandedDeals, setExpandedDeals] = useState&lt;Set&lt;number&gt;&gt;(new Set())
+            
+            className={`transition-all duration-300 ease-in-out overflow-hidden ${
+              expandedDeals.has(index) ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            }`}
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>✅ 4. Extended Pipeline Details - IMPLEMENTED</h2>
+        <p class="success">Status: COMPLETE</p>
+        <p>Comprehensive pipeline analysis with blurred content</p>
+        <div class="code-block">
+            {/* Extended Pipeline Details */}
+            &lt;Card className="md:col-span-2"&gt;
+              &lt;CardHeader&gt;
+                &lt;CardTitle className="text-lg"&gt;Extended Pipeline Details&lt;/CardTitle&gt;
+              &lt;/CardHeader&gt;
+              &lt;CardContent&gt;
+                &lt;div className="blur-sm text-muted-foreground"&gt;
+                  // Blurred content with visible headers
+                &lt;/div&gt;
+              &lt;/CardContent&gt;
+            &lt;/Card&gt;
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🔧 How to Test</h2>
+        <p class="info">To see the changes in action:</p>
+        <ol>
+            <li>Open your browser's Developer Console (F12)</li>
+            <li>Run this code to set test data:</li>
+            <div class="code-block">
+                localStorage.setItem('userInputs', JSON.stringify({
+                    target: "HER2",
+                    indication: "HER2+ BC",
+                    modality: "ADC",
+                    geography: "US",
+                    developmentPhase: "Phase 2"
+                }));
+                
+                localStorage.setItem('perplexityResult', JSON.stringify({
+                    dealActivity: [{
+                        acquirer: "Roche",
+                        asset: "TGF-β inhibitor",
+                        value: "$1.8B",
+                        date: "Q2 2024"
+                    }]
+                }));
+            </div>
+            <li>Refresh the page</li>
+            <li>Navigate to "Competitive Landscape" → "Deal Activity"</li>
+            <li>Click "More Details" on any deal card</li>
+            <li>Check "Pipeline Analysis" tab for Extended Pipeline Details</li>
+        </ol>
+    </div>
+
+    <div class="demo-section">
+        <h2>📁 Files Modified</h2>
+        <ul>
+            <li><strong>app/page.tsx</strong> - Added user input display</li>
+            <li><strong>components/competitive-landscape.tsx</strong> - Added collapsible details and extended pipeline</li>
+        </ul>
+    </div>
+
+    <div class="demo-section">
+        <h2>🚀 Deployment Status</h2>
+        <p class="success">Latest Commit: 20d212f</p>
+        <p>All changes have been committed and pushed to GitHub.</p>
+        <p>Vercel should deploy automatically with these changes.</p>
+    </div>
+</body>
+</html> 
