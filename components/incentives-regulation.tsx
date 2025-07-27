@@ -77,7 +77,15 @@ const policyIncentives = [
   },
 ]
 
-export function IncentivesRegulation() {
+export function IncentivesRegulation({
+  prvEligibility,
+  nationalPriority,
+  reviewTimelineMonths
+}: {
+  prvEligibility?: string | number,
+  nationalPriority?: string,
+  reviewTimelineMonths?: string | number
+}) {
   return (
     <div className="space-y-6">
       {/* Header Score */}
@@ -89,7 +97,7 @@ export function IncentivesRegulation() {
               <CardDescription>Regulatory incentive qualification assessment</CardDescription>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-blue-600">47%</div>
+              <div className="text-3xl font-bold text-blue-600">{prvEligibility ?? '47%'}</div>
               <Badge variant="secondary">Moderate Potential</Badge>
             </div>
           </div>
@@ -101,15 +109,15 @@ export function IncentivesRegulation() {
               <p className="text-sm text-slate-600">Rare Disease Eligibility</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-blue-600">45%</p>
+              <p className="text-lg font-bold text-blue-600">{prvEligibility ?? '45%'}</p>
               <p className="text-sm text-slate-600">PRV Eligibility</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-purple-600">High</p>
+              <p className="text-lg font-bold text-purple-600">{nationalPriority ?? 'High'}</p>
               <p className="text-sm text-slate-600">National Priority</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-orange-600">10-12 mo</p>
+              <p className="text-lg font-bold text-orange-600">{reviewTimelineMonths ?? '10-12 mo'}</p>
               <p className="text-sm text-slate-600">Review Timeline</p>
             </div>
           </div>

@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -5,6 +8,8 @@ import { Progress } from "@/components/ui/progress"
 import { ExpandableDetail } from "@/components/expandable-detail"
 import { SourceAttribution } from "@/components/source-attribution"
 import { InteractiveCompetitor } from "@/components/interactive-competitor"
+import { Button } from "@/components/ui/button"
+import { ChevronDown, ChevronUp } from "lucide-react"
 
 const competitorData = [
   {
@@ -209,7 +214,28 @@ const competitiveSources = [
   },
 ]
 
-export function CompetitiveLandscape() {
+export function CompetitiveLandscape({
+  directCompetitors,
+  dealActivity,
+  pipelineAnalysis,
+  dealCommentary
+}: {
+  directCompetitors?: string[],
+  dealActivity?: any[],
+  pipelineAnalysis?: any,
+  dealCommentary?: string
+} = {}) {
+  const [expandedDeals, setExpandedDeals] = useState<Set<number>>(new Set())
+
+  const toggleDealExpansion = (index: number) => {
+    const newExpanded = new Set(expandedDeals)
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index)
+    } else {
+      newExpanded.add(index)
+    }
+    setExpandedDeals(newExpanded)
+  }
   return (
     <Tabs defaultValue="competitors" className="w-full">
       <div className="flex items-center justify-between mb-4">
@@ -223,55 +249,146 @@ export function CompetitiveLandscape() {
 
       <TabsContent value="competitors" className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {competitorData.map((competitor, index) => (
-            <InteractiveCompetitor key={index} competitor={competitor} />
-          ))}
+          {directCompetitors && directCompetitors.length > 0 ? (
+            directCompetitors.map((name, index) => (
+              <Card key={index} className="p-4 flex items-center justify-center">
+                <span className="text-lg font-semibold text-blue-700">{name}</span>
+              </Card>
+            ))
+          ) : (
+            competitorData.map((competitor, index) => (
+              <InteractiveCompetitor key={index} competitor={competitor} />
+            ))
+          )}
         </div>
       </TabsContent>
 
       <TabsContent value="deals" className="space-y-4">
-        <div className="space-y-4">
-          {deals.map((deal, index) => (
-            <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{deal.acquirer}</CardTitle>
-                  <div className="text-right">
-                    <p className="font-bold text-green-600">{deal.value}</p>
-                    <p className="text-sm text-slate-600">{deal.date}</p>
-                  </div>
+        {dealCommentary && (
+          <Card className="mb-4 bg-blue-50 border-blue-200">
+            <CardHeader>
+              <CardTitle className="text-lg">Market Commentary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-blue-900 whitespace-pre-line">{dealCommentary}</p>
+            </CardContent>
+          </Card>
+        )}
+        <div className="space-y-6">
+          {(dealActivity && dealActivity.length > 0 ? dealActivity : deals).map((deal, index) => (
+            <Card key={index} className="p-4 border shadow-sm">
+              <CardHeader className="pb-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <CardTitle className="text-lg text-blue-700">{deal.acquirer || deal.buyerAcquirer}</CardTitle>
+                  <CardDescription className="text-xs text-slate-500">
+                    {deal.region && `${deal.region} • `}
+                    {deal.dealType && `${deal.dealType} • `}
+                    {deal.developmentStage && deal.developmentStage}
+                  </CardDescription>
                 </div>
-                <CardDescription>
-                  {deal.asset} • {deal.indication}
-                </CardDescription>
+                <div className="text-right">
+                  <p className="font-bold text-green-600 text-lg">{deal.value ?? deal.price ?? deal.dealPrice}</p>
+                  <p className="text-sm text-slate-600">{deal.date ?? deal.status ?? deal.dealDate}</p>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-slate-600">Stage at Acquisition:</span>
-                    <p className="font-medium">{deal.stage}</p>
+                <div className="mb-2 text-sm">
+                  <span className="font-semibold">Asset:</span> {deal.asset || deal.assetName} {deal.indication ? `• ${deal.indication}` : ''}
+                </div>
+                <div className="mb-2 text-sm">
+                  <span className="font-semibold">Stage:</span> {deal.stage || deal.developmentStage}
+                </div>
+                <div className="mb-2 text-sm">
+                  <span className="font-semibold">Rationale:</span> {deal.rationale}
+                </div>
+                {deal.publicCommentary && (
+                  <div className="mb-2 text-sm text-blue-800 bg-blue-50 rounded p-2">
+                    <span className="font-semibold">Commentary:</span> {deal.publicCommentary}
                   </div>
-                  <div>
-                    <span className="text-slate-600">Strategic Rationale:</span>
-                    <p className="font-medium">{deal.rationale}</p>
+                )}
+                
+                {/* More Details Button */}
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleDealExpansion(index)}
+                    className="text-blue-600 hover:text-blue-800 p-0 h-auto"
+                  >
+                    {expandedDeals.has(index) ? (
+                      <>
+                        <ChevronUp className="w-4 h-4 mr-1" />
+                        Less Details
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-4 h-4 mr-1" />
+                        More Details
+                      </>
+                    )}
+                  </Button>
+                </div>
+                
+                {/* Collapsible More Details Section */}
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                    expandedDeals.has(index) ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                >
+                  <div className={`mt-4 pt-4 border-t border-slate-200 ${expandedDeals.has(index) ? 'block' : 'hidden'}`}>
+                    <div className="space-y-4">
+                      {/* Deal Rationale */}
+                      <div>
+                        <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">Deal Rationale</h4>
+                        <div className="blur-sm text-muted-foreground">
+                          <p className="text-sm">
+                            Strategic acquisition to strengthen pipeline in targeted oncology space. 
+                            Combination potential with existing PD-L1 franchise. Market expansion opportunities 
+                            in emerging markets with high unmet need.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Clinical Synergy */}
+                      <div>
+                        <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">Clinical Synergy</h4>
+                        <div className="blur-sm text-muted-foreground">
+                          <p className="text-sm">
+                            Complementary mechanisms of action. Potential for combination trials. 
+                            Shared patient populations and clinical endpoints. Synergistic safety profiles.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Financials */}
+                      <div>
+                        <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">Financials</h4>
+                        <div className="blur-sm text-muted-foreground">
+                          <p className="text-sm">
+                            Upfront payment: $150M. Milestone payments: $1.2B. Royalties: 8-12%. 
+                            Expected peak sales: $2.5B. NPV analysis: $850M. ROI: 3.2x.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* IP Evaluation */}
+                      <div>
+                        <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">IP Evaluation</h4>
+                        <div className="blur-sm text-muted-foreground">
+                          <p className="text-sm">
+                            Patent protection until 2035. Freedom-to-operate analysis complete. 
+                            No blocking patents identified. Composition of matter claims granted. 
+                            Method of use patents pending.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Market Commentary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-slate-700">
-              Recent M&A activity suggests strong appetite for EGFR-targeting assets, with premium valuations for
-              differentiated mechanisms. Combination potential and resistance coverage driving strategic interest.
-              Average deal multiples: 8-12x peak sales for Phase II+ assets.
-            </p>
-          </CardContent>
-        </Card>
       </TabsContent>
 
       <TabsContent value="pipeline" className="space-y-4">
@@ -285,10 +402,10 @@ export function CompetitiveLandscape() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">NSCLC Pipeline Density</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-orange-600">35%</span>
+                    <span className="text-sm font-bold text-orange-600">{pipelineAnalysis?.crowdingPercent ?? '35%'}</span>
                     <ExpandableDetail
                       title="Pipeline Crowding Analysis"
-                      value="35"
+                      value={pipelineAnalysis?.crowdingPercent ?? '35'}
                       unit="%"
                       assumptions={[
                         "Based on 47 active NSCLC programs in Phase I-III",
@@ -302,16 +419,16 @@ export function CompetitiveLandscape() {
                     />
                   </div>
                 </div>
-                <Progress value={35} className="h-2" />
+                <Progress value={parseFloat(pipelineAnalysis?.crowdingPercent) || 35} className="h-2" />
                 <p className="text-xs text-slate-600 mt-1">Moderate crowding - manageable competition</p>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">Strategic Fit Rank</span>
-                  <span className="text-sm font-bold text-green-600">78%</span>
+                  <span className="text-sm font-bold text-green-600">{pipelineAnalysis?.strategicFitRank ?? '78%'}</span>
                 </div>
-                <Progress value={78} className="h-2" />
+                <Progress value={parseFloat(pipelineAnalysis?.strategicFitRank) || 78} className="h-2" />
                 <p className="text-xs text-slate-600 mt-1">High alignment with buyer portfolios</p>
               </div>
             </CardContent>
@@ -342,21 +459,100 @@ export function CompetitiveLandscape() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {(pipelineAnalysis?.competitiveThreats ?? [
+                  'Emerging Modalities',
+                  'Biosimilar Timeline',
+                  'Regulatory Headwinds',
+                ]).map((threat: string, idx: number) => (
+                  <div key={idx}>
+                    <h4 className="font-semibold text-sm text-slate-600 mb-2">{threat}</h4>
+                    {/* You can expand this to show more details if available */}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Extended Pipeline Details */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-lg">Extended Pipeline Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Preclinical Candidates */}
                 <div>
-                  <h4 className="font-semibold text-sm text-slate-600 mb-2">Emerging Modalities</h4>
-                  <ul className="text-sm space-y-1">
-                    <li>• CAR-T therapies</li>
-                    <li>• Protein degraders</li>
-                    <li>• ADCs</li>
-                  </ul>
+                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Preclinical Candidates</h4>
+                  <div className="blur-sm text-muted-foreground">
+                    <div className="space-y-2">
+                      <p className="text-sm">• EGFR-TKI-001 (Lead optimization)</p>
+                      <p className="text-sm">• EGFR-Degrader-002 (IND-enabling)</p>
+                      <p className="text-sm">• EGFR-BiTE-003 (Preclinical validation)</p>
+                      <p className="text-sm">• EGFR-ADC-004 (Conjugate optimization)</p>
+                      <p className="text-sm">• EGFR-ProTAC-005 (Target validation)</p>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Clinical Programs */}
                 <div>
-                  <h4 className="font-semibold text-sm text-slate-600 mb-2">Biosimilar Timeline</h4>
-                  <p className="text-sm">First biosimilars expected 2029-2031 for current SOC</p>
+                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Clinical Programs</h4>
+                  <div className="blur-sm text-muted-foreground">
+                    <div className="space-y-2">
+                      <p className="text-sm">• Phase I: EGFR-TKI-006 (NCT04567823)</p>
+                      <p className="text-sm">• Phase II: EGFR-Degrader-007 (NCT04567824)</p>
+                      <p className="text-sm">• Phase III: EGFR-BiTE-008 (NCT04567825)</p>
+                      <p className="text-sm">• Phase I/II: EGFR-ADC-009 (NCT04567826)</p>
+                      <p className="text-sm">• Phase II: EGFR-ProTAC-010 (NCT04567827)</p>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Geographic Expansion */}
                 <div>
-                  <h4 className="font-semibold text-sm text-slate-600 mb-2">Regulatory Headwinds</h4>
-                  <p className="text-sm">Increasing safety requirements, combination trial complexity</p>
+                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Geographic Expansion</h4>
+                  <div className="blur-sm text-muted-foreground">
+                    <p className="text-sm">
+                      Strategic expansion into emerging markets with high EGFR mutation prevalence. 
+                      Regulatory submissions planned for China, Japan, and South Korea. 
+                      Local manufacturing partnerships established in India and Brazil. 
+                      Market access strategies developed for ASEAN markets.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mechanism of Action Mapping */}
+                <div>
+                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Mechanism of Action Mapping</h4>
+                  <div className="blur-sm text-muted-foreground">
+                    <p className="text-sm">
+                      Comprehensive analysis of EGFR signaling pathways and resistance mechanisms. 
+                      Identification of novel combination targets and synthetic lethality opportunities. 
+                      Biomarker development for patient stratification and response prediction. 
+                      Real-world evidence analysis for mechanism validation.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Combination Trials */}
+                <div className="md:col-span-2">
+                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Combination Trials</h4>
+                  <div className="blur-sm text-muted-foreground">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium mb-2">EGFR + PD-L1 Combinations</p>
+                        <p className="text-sm">• Phase I/II: EGFR-TKI + Pembrolizumab (NCT04567828)</p>
+                        <p className="text-sm">• Phase II: EGFR-Degrader + Atezolizumab (NCT04567829)</p>
+                        <p className="text-sm">• Phase III: EGFR-BiTE + Durvalumab (NCT04567830)</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium mb-2">EGFR + Chemotherapy</p>
+                        <p className="text-sm">• Phase II: EGFR-TKI + Cisplatin (NCT04567831)</p>
+                        <p className="text-sm">• Phase I: EGFR-Degrader + Carboplatin (NCT04567832)</p>
+                        <p className="text-sm">• Phase II: EGFR-BiTE + Pemetrexed (NCT04567833)</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>

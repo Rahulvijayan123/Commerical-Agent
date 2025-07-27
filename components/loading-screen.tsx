@@ -62,9 +62,23 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
       }
 
       // Complete
-      setTimeout(() => {
-        onComplete()
-      }, 300)
+      setTimeout(async () => {
+        // 1. Call the Perplexity API
+        try {
+          const response = await fetch('/api/perplexity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: 'Placeholder: replace with real molecule data' })
+          });
+          const data = await response.json();
+          // 2. Save to localStorage
+          localStorage.setItem('perplexityResult', JSON.stringify(data));
+        } catch (err) {
+          localStorage.setItem('perplexityResult', JSON.stringify({ error: 'Failed to fetch Perplexity result', details: String(err) }));
+        }
+        // 3. Move to analysis
+        onComplete();
+      }, 300);
     }
 
     runSteps()

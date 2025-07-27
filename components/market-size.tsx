@@ -57,7 +57,7 @@ const marketSizeSources = [
   },
 ]
 
-export function MarketSize() {
+export function MarketSize({ marketSize, cagr }: { marketSize?: string, cagr?: string }) {
   return (
     <div className="space-y-6">
       {/* Header Metrics */}
@@ -97,7 +97,7 @@ export function MarketSize() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="flex items-center justify-center gap-2">
-                <p className="text-2xl font-bold text-blue-600">$2.51B</p>
+                <p className="text-2xl font-bold text-blue-600">{marketSize || "$2.51B"}</p>
                 <ExpandableDetail
                   title="Peak Sales Estimate"
                   value="2.51"
@@ -115,8 +115,21 @@ export function MarketSize() {
               <p className="text-sm text-slate-600">Peak Sales Estimate</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">$1.506B</p>
-              <p className="text-sm text-slate-600">Current Market Size</p>
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-2xl font-bold text-green-600">{cagr || "8.2%"}</p>
+                <ExpandableDetail
+                  title="CAGR"
+                  value="8.2"
+                  unit="%"
+                  assumptions={[
+                    "CAGR of 8.2% from 2024 to 2029",
+                    "Based on historical TKI market growth",
+                  ]}
+                  formula="CAGR = (End Value / Start Value)^(1 / Number of Years) - 1"
+                  sources={marketSizeSources.slice(0, 2)}
+                />
+              </div>
+              <p className="text-sm text-slate-600">CAGR</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-purple-600">8-12%</p>

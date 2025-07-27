@@ -89,7 +89,26 @@ const financialSources = [
   },
 ]
 
-export function FinancialProjections() {
+export function FinancialProjections({
+  peakRevenue2030,
+  peakMarketShare2030,
+  peakPatients2030
+}: {
+  peakRevenue2030?: string,
+  peakMarketShare2030?: string,
+  peakPatients2030?: string
+} = {}) {
+  // Override keyMetrics if Perplexity data is provided
+  const keyMetrics = [
+    { metric: "Peak Revenue", value: peakRevenue2030 ?? "$3.826B", year: "2030" },
+    { metric: "Total 10-Year Revenue", value: "$25.654B", period: "2024-2033" },
+    { metric: "Peak Market Share", value: peakMarketShare2030 ?? "17.1%", year: "2030" },
+    { metric: "Peak Patients", value: peakPatients2030 ?? "26K", year: "2030" },
+    { metric: "Avg Selling Price", value: "$156K", note: "Blended global" },
+    { metric: "Persistence Rate", value: "85%", note: "12-month" },
+    { metric: "Treatment Duration", value: "18 mo", note: "Median" },
+    { metric: "Geographic Split", value: "60% US / 40% Ex-US", note: "Peak year" },
+  ];
   return (
     <div className="space-y-6">
       {/* Key Metrics Grid */}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Download,
@@ -56,6 +56,62 @@ export default function MarketAnalysisAgent() {
   const [moleculeData, setMoleculeData] = useState<MoleculeData | null>(null)
   const [activeModule, setActiveModule] = useState("compound")
   const [collapsedModules, setCollapsedModules] = useState<Set<string>>(new Set())
+  const [perplexityData, setPerplexityData] = useState<{
+    marketSize?: string,
+    cagr?: string,
+    directCompetitors?: string[],
+    prvEligibility?: string | number,
+    nationalPriority?: string,
+    reviewTimelineMonths?: string | number,
+    peakRevenue2030?: string,
+    peakMarketShare2030?: string,
+    peakPatients2030?: string,
+    dealActivity?: any[],
+    pipelineAnalysis?: any,
+    dealCommentary?: string
+  }>({})
+  const [userInputs, setUserInputs] = useState<{
+    target?: string,
+    indication?: string,
+    therapeuticArea?: string,
+    geography?: string,
+    developmentPhase?: string,
+    modality?: string
+  }>({})
+  const [decodeError, setDecodeError] = useState<string | null>(null)
+
+  useEffect(() => {
+    console.log('[DEBUG] Dashboard mounted');
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem('perplexityResult');
+      const storedInputs = localStorage.getItem('userInputs');
+      console.log('[DEBUG] Loaded perplexityResult from localStorage:', stored);
+      console.log('[DEBUG] Loaded userInputs from localStorage:', storedInputs);
+      
+      if (stored) {
+        try {
+          setPerplexityData(JSON.parse(stored));
+          console.log('[DEBUG] Parsed perplexityResult:', JSON.parse(stored));
+          // Clear it after reading so only new submissions are shown
+          localStorage.removeItem('perplexityResult');
+        } catch (e) {
+          setDecodeError('Failed to parse perplexityResult: ' + String(e));
+          console.error('[DEBUG] Failed to parse perplexityResult:', e);
+        }
+      }
+      
+      if (storedInputs) {
+        try {
+          setUserInputs(JSON.parse(storedInputs));
+          console.log('[DEBUG] Parsed userInputs:', JSON.parse(storedInputs));
+          // Clear it after reading so only new submissions are shown
+          localStorage.removeItem('userInputs');
+        } catch (e) {
+          console.error('[DEBUG] Failed to parse userInputs:', e);
+        }
+      }
+    }
+  }, []);
 
   const toggleModule = (moduleId: string) => {
     const newCollapsed = new Set(collapsedModules)
@@ -84,11 +140,26 @@ export default function MarketAnalysisAgent() {
     setCurrentStep("metadata")
   }
 
+  if (decodeError) {
+    console.log('[DEBUG] Rendering decodeError:', decodeError);
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-red-50">
+        <div className="bg-white border border-red-300 rounded-lg p-8 shadow-md">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Dashboard</h2>
+          <p className="text-red-700 mb-2">{decodeError}</p>
+          <p className="text-slate-600 text-sm">Please check the URL or try submitting the form again.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (currentStep === "metadata") {
+    console.log('[DEBUG] Rendering MoleculeMetadata step');
     return <MoleculeMetadata onSubmit={handleMetadataSubmit} />
   }
 
   if (currentStep === "loading") {
+    console.log('[DEBUG] Rendering LoadingScreen step');
     return <LoadingScreen onComplete={handleLoadingComplete} />
   }
 
@@ -102,15 +173,19 @@ export default function MarketAnalysisAgent() {
               <div className="flex items-center gap-4">
                 <div>
                   <h1 className="text-3xl font-bold text-slate-900">Market Analysis Agent</h1>
-                  <p className="text-slate-600 mt-1">Simulating Commercial Viability for Drug Asset Evaluation</p>
+                  {/* User Inputs Display */}
+                  {Object.values(userInputs).some(value => value) && (
+                    <div className="pt-1 pb-2">
+                      <p className="text-sm text-muted-foreground">
+                        {userInputs.target && `• Target: ${userInputs.target}`}
+                        {userInputs.indication && ` • Indication: ${userInputs.indication}`}
+                        {userInputs.modality && ` • Modality: ${userInputs.modality}`}
+                        {userInputs.geography && ` • Geography: ${userInputs.geography}`}
+                        {userInputs.developmentPhase && ` • Development Stage: ${userInputs.developmentPhase}`}
+                      </p>
+                    </div>
+                  )}
                 </div>
-                {true && (
-                  <div className="text-sm text-slate-600 border-l pl-4">
-                    <p className="font-semibold">Example Molecule</p>
-                    <p>Internal Code 123</p>
-                    <p>Phase: Phase 2</p>
-                  </div>
-                )}
               </div>
             </div>
             <div className="flex gap-2">
@@ -186,7 +261,14 @@ export default function MarketAnalysisAgent() {
                 )}
               </Button>
             </div>
-            {!collapsedModules.has("competitive") && <CompetitiveLandscape />}
+            {!collapsedModules.has("competitive") && (
+              <CompetitiveLandscape
+                directCompetitors={perplexityData.directCompetitors}
+                dealActivity={perplexityData.dealActivity}
+                pipelineAnalysis={perplexityData.pipelineAnalysis}
+                dealCommentary={perplexityData.dealCommentary}
+              />
+            )}
           </div>
 
           {/* Market Size */}
@@ -201,7 +283,7 @@ export default function MarketAnalysisAgent() {
                 )}
               </Button>
             </div>
-            {!collapsedModules.has("market") && <MarketSize />}
+            {!collapsedModules.has("market") && <MarketSize marketSize={perplexityData.marketSize} cagr={perplexityData.cagr} />}
           </div>
 
           {/* Pricing & Access */}
@@ -231,7 +313,13 @@ export default function MarketAnalysisAgent() {
                 )}
               </Button>
             </div>
-            {!collapsedModules.has("incentives") && <IncentivesRegulation />}
+            {!collapsedModules.has("incentives") && (
+              <IncentivesRegulation
+                prvEligibility={perplexityData.prvEligibility}
+                nationalPriority={perplexityData.nationalPriority}
+                reviewTimelineMonths={perplexityData.reviewTimelineMonths}
+              />
+            )}
           </div>
 
           {/* IP Positioning */}
@@ -257,7 +345,13 @@ export default function MarketAnalysisAgent() {
                 )}
               </Button>
             </div>
-            {!collapsedModules.has("financial") && <FinancialProjections />}
+            {!collapsedModules.has("financial") && (
+              <FinancialProjections
+                peakRevenue2030={perplexityData.peakRevenue2030}
+                peakMarketShare2030={perplexityData.peakMarketShare2030}
+                peakPatients2030={perplexityData.peakPatients2030}
+              />
+            )}
           </div>
 
           {/* Strategic Fit */}
