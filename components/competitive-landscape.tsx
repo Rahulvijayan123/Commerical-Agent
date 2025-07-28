@@ -148,43 +148,18 @@ const competitorData = [
   },
 ]
 
-const deals = [
+// Placeholder deals - will be replaced by real validated data from API
+const placeholderDeals = [
   {
-    acquirer: "Roche",
-    asset: "TGF-β inhibitor",
-    indication: "NSCLC combination",
-    rationale: "Combo potential with PD-L1",
-    date: "Q2 2024",
-    value: "$1.8B",
-    stage: "Phase II",
-  },
-  {
-    acquirer: "Merck",
-    asset: "KRAS G12C inhibitor",
-    indication: "NSCLC",
-    rationale: "Resistance mechanism coverage",
-    date: "Q1 2024",
-    value: "$2.1B",
-    stage: "Phase III",
-  },
-  {
-    acquirer: "Bristol Myers",
-    asset: "EGFR degrader",
-    indication: "EGFR+ tumors",
-    rationale: "Next-gen EGFR targeting",
-    date: "Q4 2023",
-    value: "$950M",
-    stage: "Phase I",
-  },
-  {
-    acquirer: "Pfizer",
-    asset: "CDK4/6 inhibitor",
-    indication: "NSCLC combination",
-    rationale: "Cell cycle targeting",
-    date: "Q3 2023",
-    value: "$1.3B",
-    stage: "Phase II",
-  },
+    acquirer: "No recent deals found",
+    asset: "Real-time research required",
+    indication: "Please submit analysis request",
+    rationale: "Deal data will be validated with real research",
+    date: "N/A",
+    value: "N/A",
+    stage: "N/A",
+    validationNote: "This is placeholder data. Real deals will be researched and validated."
+  }
 ]
 
 const competitiveSources = [
@@ -275,7 +250,7 @@ export function CompetitiveLandscape({
           </Card>
         )}
         <div className="space-y-6">
-          {(dealActivity && dealActivity.length > 0 ? dealActivity : deals).map((deal, index) => (
+          {(dealActivity && dealActivity.length > 0 ? dealActivity : placeholderDeals).map((deal, index) => (
             <Card key={index} className="p-4 border shadow-sm">
               <CardHeader className="pb-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
@@ -292,6 +267,23 @@ export function CompetitiveLandscape({
                 </div>
               </CardHeader>
               <CardContent>
+                {/* Validation Status */}
+                {deal.validationScore && (
+                  <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${deal.validationScore >= 85 ? 'bg-green-500' : deal.validationScore >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                      <span className="text-sm font-medium">
+                        Validation Score: {deal.validationScore.toFixed(1)}%
+                      </span>
+                    </div>
+                    {deal.validationNotes && deal.validationNotes.length > 0 && (
+                      <div className="mt-1 text-xs text-green-700">
+                        Validated with {deal.sources?.length || 0} sources
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <div className="mb-2 text-sm">
                   <span className="font-semibold">Asset:</span> {deal.asset || deal.assetName} {deal.indication ? `• ${deal.indication}` : ''}
                 </div>
@@ -301,9 +293,25 @@ export function CompetitiveLandscape({
                 <div className="mb-2 text-sm">
                   <span className="font-semibold">Rationale:</span> {deal.rationale}
                 </div>
+                
+                {/* Patient Population Data */}
+                {deal.patientPopulation && (
+                  <div className="mb-2 text-sm text-blue-800 bg-blue-50 rounded p-2">
+                    <span className="font-semibold">Patient Population:</span> {deal.patientPopulation.totalPatients} total, {deal.patientPopulation.addressableMarket} addressable
+                    <div className="text-xs text-blue-600 mt-1">Source: {deal.patientPopulation.source}</div>
+                  </div>
+                )}
+                
                 {deal.publicCommentary && (
                   <div className="mb-2 text-sm text-blue-800 bg-blue-50 rounded p-2">
                     <span className="font-semibold">Commentary:</span> {deal.publicCommentary}
+                  </div>
+                )}
+                
+                {/* Validation Note for Placeholder */}
+                {deal.validationNote && (
+                  <div className="mb-2 text-sm text-orange-800 bg-orange-50 rounded p-2">
+                    <span className="font-semibold">Note:</span> {deal.validationNote}
                   </div>
                 )}
                 
