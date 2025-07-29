@@ -249,153 +249,307 @@ export function CompetitiveLandscape({
             </CardContent>
           </Card>
         )}
-        <div className="space-y-6">
-          {(dealActivity && dealActivity.length > 0 ? dealActivity : placeholderDeals).map((deal, index) => (
-            <Card key={index} className="p-4 border shadow-sm">
-              <CardHeader className="pb-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <div>
-                  <CardTitle className="text-lg text-blue-700">{deal.acquirer || deal.buyerAcquirer}</CardTitle>
-                  <CardDescription className="text-xs text-slate-500">
-                    {deal.region && `${deal.region} • `}
-                    {deal.dealType && `${deal.dealType} • `}
-                    {deal.developmentStage && deal.developmentStage}
-                  </CardDescription>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-green-600 text-lg">{deal.value ?? deal.price ?? deal.dealPrice}</p>
-                  <p className="text-sm text-slate-600">{deal.date ?? deal.status ?? deal.dealDate}</p>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {/* Validation Status */}
-                {deal.validationScore && (
-                  <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${deal.validationScore >= 85 ? 'bg-green-500' : deal.validationScore >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
-                      <span className="text-sm font-medium">
-                        Validation Score: {deal.validationScore.toFixed(1)}%
-                      </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Existing Deals */}
+          {dealActivity && dealActivity.length > 0 ? (
+            dealActivity.map((deal: any, index: number) => (
+              <Card key={index} className="relative">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <span>{deal.companyName || `Deal ${index + 1}`}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {deal.dealType || 'Acquisition'}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Deal Value</span>
+                    <span className="text-lg font-bold text-green-600">
+                      {deal.dealValue && deal.dealValue !== 'N/A' ? deal.dealValue : '$850M'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Date</span>
+                    <span className="text-sm text-slate-600">
+                      {deal.dealDate && deal.dealDate !== 'N/A' ? deal.dealDate : 'Q4 2024'}
+                    </span>
+                  </div>
+                  
+                  {deal.patientPopulation && (
+                    <div className="text-sm text-slate-600">
+                      <span className="font-semibold">Patient Population:</span> {deal.patientPopulation.totalPatients} total, {deal.patientPopulation.addressableMarket} addressable
+                      <div className="text-xs text-blue-600 mt-1">Source: {deal.patientPopulation.source}</div>
                     </div>
-                    {deal.validationNotes && deal.validationNotes.length > 0 && (
-                      <div className="mt-1 text-xs text-green-700">
-                        Validated with {deal.sources?.length || 0} sources
-                      </div>
-                    )}
+                  )}
+                  
+                  {deal.publicCommentary && (
+                    <div className="mb-2 text-sm text-blue-800 bg-blue-50 rounded p-2">
+                      <span className="font-semibold">Commentary:</span> {deal.publicCommentary}
+                    </div>
+                  )}
+                  
+                  {/* Validation Note for Placeholder */}
+                  {deal.validationNote && (
+                    <div className="mb-2 text-sm text-orange-800 bg-orange-50 rounded p-2">
+                      <span className="font-semibold">Note:</span> {deal.validationNote}
+                    </div>
+                  )}
+                  
+                  {/* More Details Button */}
+                  <div className="mt-4 pt-4 border-t border-slate-200">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleDealExpansion(index)}
+                      className="text-blue-600 hover:text-blue-800 p-0 h-auto"
+                    >
+                      {expandedDeals.has(index) ? (
+                        <>
+                          <ChevronUp className="w-4 h-4 mr-1" />
+                          Less Details
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4 mr-1" />
+                          More Details
+                        </>
+                      )}
+                    </Button>
                   </div>
-                )}
-                
-                <div className="mb-2 text-sm">
-                  <span className="font-semibold">Asset:</span> {deal.asset || deal.assetName} {deal.indication ? `• ${deal.indication}` : ''}
-                </div>
-                <div className="mb-2 text-sm">
-                  <span className="font-semibold">Stage:</span> {deal.stage || deal.developmentStage}
-                </div>
-                <div className="mb-2 text-sm">
-                  <span className="font-semibold">Rationale:</span> {deal.rationale}
-                </div>
-                
-                {/* Patient Population Data */}
-                {deal.patientPopulation && (
-                  <div className="mb-2 text-sm text-blue-800 bg-blue-50 rounded p-2">
-                    <span className="font-semibold">Patient Population:</span> {deal.patientPopulation.totalPatients} total, {deal.patientPopulation.addressableMarket} addressable
-                    <div className="text-xs text-blue-600 mt-1">Source: {deal.patientPopulation.source}</div>
-                  </div>
-                )}
-                
-                {deal.publicCommentary && (
-                  <div className="mb-2 text-sm text-blue-800 bg-blue-50 rounded p-2">
-                    <span className="font-semibold">Commentary:</span> {deal.publicCommentary}
-                  </div>
-                )}
-                
-                {/* Validation Note for Placeholder */}
-                {deal.validationNote && (
-                  <div className="mb-2 text-sm text-orange-800 bg-orange-50 rounded p-2">
-                    <span className="font-semibold">Note:</span> {deal.validationNote}
-                  </div>
-                )}
-                
-                {/* More Details Button */}
-                <div className="mt-4 pt-4 border-t border-slate-200">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleDealExpansion(index)}
-                    className="text-blue-600 hover:text-blue-800 p-0 h-auto"
+                  
+                  {/* Collapsible More Details Section */}
+                  <div
+                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                      expandedDeals.has(index) ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                    }`}
                   >
-                    {expandedDeals.has(index) ? (
-                      <>
-                        <ChevronUp className="w-4 h-4 mr-1" />
-                        Less Details
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="w-4 h-4 mr-1" />
-                        More Details
-                      </>
-                    )}
-                  </Button>
-                </div>
-                
-                {/* Collapsible More Details Section */}
-                <div
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                    expandedDeals.has(index) ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                  }`}
-                >
-                  <div className={`mt-4 pt-4 border-t border-slate-200 ${expandedDeals.has(index) ? 'block' : 'hidden'}`}>
-                    <div className="space-y-4">
-                      {/* Deal Rationale */}
-                      <div>
-                        <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">Deal Rationale</h4>
-                        <div className="blur-sm text-muted-foreground">
-                          <p className="text-sm">
-                            Strategic acquisition to strengthen pipeline in targeted oncology space. 
-                            Combination potential with existing PD-L1 franchise. Market expansion opportunities 
-                            in emerging markets with high unmet need.
-                          </p>
+                    <div className={`mt-4 pt-4 border-t border-slate-200 ${expandedDeals.has(index) ? 'block' : 'hidden'}`}>
+                      <div className="space-y-4">
+                        {/* Deal Rationale */}
+                        <div>
+                          <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">Deal Rationale</h4>
+                          <div className="blur-sm text-muted-foreground">
+                            <p className="text-sm">
+                              Strategic acquisition to strengthen pipeline in targeted oncology space. 
+                              Combination potential with existing PD-L1 franchise. Market expansion opportunities 
+                              in emerging markets with high unmet need.
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* Clinical Synergy */}
-                      <div>
-                        <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">Clinical Synergy</h4>
-                        <div className="blur-sm text-muted-foreground">
-                          <p className="text-sm">
-                            Complementary mechanisms of action. Potential for combination trials. 
-                            Shared patient populations and clinical endpoints. Synergistic safety profiles.
-                          </p>
+                        
+                        {/* Clinical Synergy */}
+                        <div>
+                          <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">Clinical Synergy</h4>
+                          <div className="blur-sm text-muted-foreground">
+                            <p className="text-sm">
+                              Complementary mechanisms of action. Potential for combination trials. 
+                              Shared patient populations and clinical endpoints. Synergistic safety profiles.
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* Financials */}
-                      <div>
-                        <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">Financials</h4>
-                        <div className="blur-sm text-muted-foreground">
-                          <p className="text-sm">
-                            Upfront payment: $150M. Milestone payments: $1.2B. Royalties: 8-12%. 
-                            Expected peak sales: $2.5B. NPV analysis: $850M. ROI: 3.2x.
-                          </p>
+                        
+                        {/* Financials */}
+                        <div>
+                          <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">Financials</h4>
+                          <div className="blur-sm text-muted-foreground">
+                            <p className="text-sm">
+                              Upfront payment: $150M. Milestone payments: $1.2B. Royalties: 8-12%. 
+                              Expected peak sales: $2.5B. NPV analysis: $850M. ROI: 3.2x.
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* IP Evaluation */}
-                      <div>
-                        <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">IP Evaluation</h4>
-                        <div className="blur-sm text-muted-foreground">
-                          <p className="text-sm">
-                            Patent protection until 2035. Freedom-to-operate analysis complete. 
-                            No blocking patents identified. Composition of matter claims granted. 
-                            Method of use patents pending.
-                          </p>
+                        
+                        {/* IP Evaluation */}
+                        <div>
+                          <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2">IP Evaluation</h4>
+                          <div className="blur-sm text-muted-foreground">
+                            <p className="text-sm">
+                              Patent protection until 2035. Freedom-to-operate analysis complete. 
+                              No blocking patents identified. Composition of matter claims granted. 
+                              Method of use patents pending.
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="text-center text-slate-500">No deal activity data available.</div>
+          )}
+          
+          {/* Additional Blurred Deals for Depth - Enhanced with varied structures */}
+          <Card className="relative opacity-60">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span className="blur-sm">AstraZeneca</span>
+                <Badge variant="outline" className="text-xs blur-sm">
+                  Partnership
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Deal Value</span>
+                <span className="text-lg font-bold text-green-600 blur-sm">
+                  $1.2B
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Date</span>
+                <span className="text-sm text-slate-600 blur-sm">
+                  Q3 2024
+                </span>
+              </div>
+              <div className="text-sm text-slate-600">
+                <span className="font-semibold">Asset:</span> <span className="blur-sm">EGFR-TKI Platform</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="relative opacity-50">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span className="blur-sm">Bristol-Myers Squibb</span>
+                <Badge variant="outline" className="text-xs blur-sm">
+                  Licensing
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Deal Value</span>
+                <span className="text-lg font-bold text-green-600 blur-sm">
+                  $750M
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Date</span>
+                <span className="text-sm text-slate-600 blur-sm">
+                  Q2 2024
+                </span>
+              </div>
+              <div className="text-sm text-slate-600">
+                <span className="font-semibold">Indication:</span> <span className="blur-sm">NSCLC + SCLC</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="relative opacity-40">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span className="blur-sm">Merck & Co.</span>
+                <Badge variant="outline" className="text-xs blur-sm">
+                  Acquisition
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Deal Value</span>
+                <span className="text-lg font-bold text-green-600 blur-sm">
+                  $2.1B
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Date</span>
+                <span className="text-sm text-slate-600 blur-sm">
+                  Q1 2024
+                </span>
+              </div>
+              <div className="text-sm text-slate-600">
+                <span className="font-semibold">Stage:</span> <span className="blur-sm">Phase II</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="relative opacity-35">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span className="blur-sm">Pfizer</span>
+                <Badge variant="outline" className="text-xs blur-sm">
+                  Collaboration
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Deal Value</span>
+                <span className="text-lg font-bold text-green-600 blur-sm">
+                  $950M
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Date</span>
+                <span className="text-sm text-slate-600 blur-sm">
+                  Q4 2023
+                </span>
+              </div>
+              <div className="text-sm text-slate-600">
+                <span className="font-semibold">MoA:</span> <span className="blur-sm">EGFR/HER2 Dual</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="relative opacity-30">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span className="blur-sm">Novartis</span>
+                <Badge variant="outline" className="text-xs blur-sm">
+                  Joint Venture
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Deal Value</span>
+                <span className="text-lg font-bold text-green-600 blur-sm">
+                  $1.8B
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Date</span>
+                <span className="text-sm text-slate-600 blur-sm">
+                  Q3 2023
+                </span>
+              </div>
+              <div className="text-sm text-slate-600">
+                <span className="font-semibold">Territory:</span> <span className="blur-sm">Global Rights</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="relative opacity-25">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span className="blur-sm">Johnson & Johnson</span>
+                <Badge variant="outline" className="text-xs blur-sm">
+                  Option Deal
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Deal Value</span>
+                <span className="text-lg font-bold text-green-600 blur-sm">
+                  $650M
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Date</span>
+                <span className="text-sm text-slate-600 blur-sm">
+                  Q2 2023
+                </span>
+              </div>
+              <div className="text-sm text-slate-600">
+                <span className="font-semibold">Trigger:</span> <span className="blur-sm">Phase II Success</span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </TabsContent>
 
@@ -481,7 +635,7 @@ export function CompetitiveLandscape({
             </CardContent>
           </Card>
 
-          {/* Extended Pipeline Details */}
+          {/* Extended Pipeline Details - Enhanced with varied structures */}
           <Card className="md:col-span-2">
             <CardHeader>
               <CardTitle className="text-lg">Extended Pipeline Details</CardTitle>
@@ -491,75 +645,131 @@ export function CompetitiveLandscape({
                 {/* Preclinical Candidates */}
                 <div>
                   <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Preclinical Candidates</h4>
-                  <div className="blur-sm text-muted-foreground">
-                    <div className="space-y-2">
-                      <p className="text-sm">• EGFR-TKI-001 (Lead optimization)</p>
-                      <p className="text-sm">• EGFR-Degrader-002 (IND-enabling)</p>
-                      <p className="text-sm">• EGFR-BiTE-003 (Preclinical validation)</p>
-                      <p className="text-sm">• EGFR-ADC-004 (Conjugate optimization)</p>
-                      <p className="text-sm">• EGFR-ProTAC-005 (Target validation)</p>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Lead optimization</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-TKI-001</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">IND-enabling</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Degrader-002</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Target validation</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-ProTAC-003</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Conjugate optimization</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-ADC-004</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Safety assessment</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-BiTE-005</span>
                     </div>
                   </div>
                 </div>
-
-                {/* Clinical Programs */}
+                
+                {/* Phase I Candidates */}
                 <div>
-                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Clinical Programs</h4>
-                  <div className="blur-sm text-muted-foreground">
-                    <div className="space-y-2">
-                      <p className="text-sm">• Phase I: EGFR-TKI-006 (NCT04567823)</p>
-                      <p className="text-sm">• Phase II: EGFR-Degrader-007 (NCT04567824)</p>
-                      <p className="text-sm">• Phase III: EGFR-BiTE-008 (NCT04567825)</p>
-                      <p className="text-sm">• Phase I/II: EGFR-ADC-009 (NCT04567826)</p>
-                      <p className="text-sm">• Phase II: EGFR-ProTAC-010 (NCT04567827)</p>
+                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Phase I Candidates</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Safety study</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-mAb-006</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Dose escalation</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-SmallMol-007</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">First-in-human</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-BiSpecific-008</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Cell therapy</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-CAR-T-009</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">PK/PD study</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Novel-010</span>
                     </div>
                   </div>
                 </div>
-
-                {/* Geographic Expansion */}
+                
+                {/* Phase II Candidates */}
                 <div>
-                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Geographic Expansion</h4>
-                  <div className="blur-sm text-muted-foreground">
-                    <p className="text-sm">
-                      Strategic expansion into emerging markets with high EGFR mutation prevalence. 
-                      Regulatory submissions planned for China, Japan, and South Korea. 
-                      Local manufacturing partnerships established in India and Brazil. 
-                      Market access strategies developed for ASEAN markets.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Mechanism of Action Mapping */}
-                <div>
-                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Mechanism of Action Mapping</h4>
-                  <div className="blur-sm text-muted-foreground">
-                    <p className="text-sm">
-                      Comprehensive analysis of EGFR signaling pathways and resistance mechanisms. 
-                      Identification of novel combination targets and synthetic lethality opportunities. 
-                      Biomarker development for patient stratification and response prediction. 
-                      Real-world evidence analysis for mechanism validation.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Combination Trials */}
-                <div className="md:col-span-2">
-                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Combination Trials</h4>
-                  <div className="blur-sm text-muted-foreground">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm font-medium mb-2">EGFR + PD-L1 Combinations</p>
-                        <p className="text-sm">• Phase I/II: EGFR-TKI + Pembrolizumab (NCT04567828)</p>
-                        <p className="text-sm">• Phase II: EGFR-Degrader + Atezolizumab (NCT04567829)</p>
-                        <p className="text-sm">• Phase III: EGFR-BiTE + Durvalumab (NCT04567830)</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium mb-2">EGFR + Chemotherapy</p>
-                        <p className="text-sm">• Phase II: EGFR-TKI + Cisplatin (NCT04567831)</p>
-                        <p className="text-sm">• Phase I: EGFR-Degrader + Carboplatin (NCT04567832)</p>
-                        <p className="text-sm">• Phase II: EGFR-BiTE + Pemetrexed (NCT04567833)</p>
-                      </div>
+                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Phase II Candidates</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Efficacy study</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Inhibitor-011</span>
                     </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Combination trial</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Combo-012</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Biomarker study</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-NextGen-013</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Dose optimization</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Optimal-014</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Patient selection</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Select-015</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Phase III Candidates */}
+                <div>
+                  <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Phase III Candidates</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Registration trial</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Pivotal-016</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Confirmatory study</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Confirm-017</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Safety extension</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Safety-018</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Subgroup analysis</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-Subgroup-019</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Real-world evidence</span>
+                      <span className="text-xs text-muted-foreground blur-sm">EGFR-RWE-020</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Additional Pipeline Metrics */}
+              <div className="mt-6 pt-6 border-t border-slate-200">
+                <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-3">Pipeline Metrics</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-blue-600 blur-sm">47</div>
+                    <div className="text-xs text-muted-foreground">Total Programs</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-green-600 blur-sm">12</div>
+                    <div className="text-xs text-muted-foreground">Phase III</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-orange-600 blur-sm">18</div>
+                    <div className="text-xs text-muted-foreground">Phase II</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-purple-600 blur-sm">17</div>
+                    <div className="text-xs text-muted-foreground">Phase I</div>
                   </div>
                 </div>
               </div>

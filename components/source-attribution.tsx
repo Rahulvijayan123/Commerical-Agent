@@ -67,7 +67,7 @@ export function SourceAttribution({ sectionTitle, sources }: SourceAttributionPr
           <SheetDescription>Sources used for {sectionTitle} analysis</SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
           {sources.map((source, index) => {
             const Icon = getSourceIcon(source.type)
             return (

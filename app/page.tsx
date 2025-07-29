@@ -172,16 +172,48 @@ export default function MarketAnalysisAgent() {
               <div className="flex items-center gap-4">
                 <div>
                   <h1 className="text-3xl font-bold text-slate-900">Market Analysis Agent</h1>
-                  {/* User Inputs Display */}
+                  {/* Enhanced User Inputs Display */}
                   {Object.values(userInputs).some(value => value) && (
-                    <div className="pt-1 pb-2">
-                      <p className="text-sm text-muted-foreground">
-                        {userInputs.target && `• Target: ${userInputs.target}`}
-                        {userInputs.indication && ` • Indication: ${userInputs.indication}`}
-                        {userInputs.modality && ` • Modality: ${userInputs.modality}`}
-                        {userInputs.geography && ` • Geography: ${userInputs.geography}`}
-                        {userInputs.developmentPhase && ` • Development Stage: ${userInputs.developmentPhase}`}
-                      </p>
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h3 className="text-sm font-semibold text-blue-900 mb-2">Analysis Parameters:</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+                        {userInputs.target && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-blue-800">Target:</span>
+                            <span className="text-blue-700">{userInputs.target}</span>
+                          </div>
+                        )}
+                        {userInputs.indication && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-blue-800">Indication:</span>
+                            <span className="text-blue-700">{userInputs.indication}</span>
+                          </div>
+                        )}
+                        {userInputs.modality && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-blue-800">Modality:</span>
+                            <span className="text-blue-700">{userInputs.modality}</span>
+                          </div>
+                        )}
+                        {userInputs.geography && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-blue-800">Geography:</span>
+                            <span className="text-blue-700">{userInputs.geography}</span>
+                          </div>
+                        )}
+                        {userInputs.developmentPhase && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-blue-800">Development Stage:</span>
+                            <span className="text-blue-700">{userInputs.developmentPhase}</span>
+                          </div>
+                        )}
+                        {userInputs.therapeuticArea && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-blue-800">Therapeutic Area:</span>
+                            <span className="text-blue-700">{userInputs.therapeuticArea}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
